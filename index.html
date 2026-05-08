@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spanish Flashcards — Kitchen</title>
+  <style>
+    :root {
+      --bg: #fafaf9;
+      --fg: #1e293b;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --card: #ffffff;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+    header {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .stats {
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .stats .good { color: var(--good); font-variant-numeric: tabular-nums; }
+    .stats .bad  { color: var(--bad);  font-variant-numeric: tabular-nums; }
+    .stats button {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .stats button:hover { color: var(--fg); border-color: var(--muted); }
+    .progress {
+      font-size: 13px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      margin-right: 4px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .image-wrap {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .image-wrap img {
+      max-width: 80%;
+      max-height: 80%;
+      object-fit: contain;
+    }
+
+    form { display: flex; flex-direction: column; gap: 12px; }
+    input[type="text"] {
+      width: 100%;
+      font-size: 20px;
+      padding: 14px 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      background: #fff;
+      color: var(--fg);
+      transition: border-color 120ms ease;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    input[type="text"]:disabled { background: #f8fafc; }
+
+    .feedback {
+      min-height: 28px;
+      font-size: 15px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .feedback.good { color: var(--good); font-weight: 500; }
+    .feedback.bad  { color: var(--bad);  font-weight: 500; }
+    .feedback .answer { color: var(--bad); font-weight: 600; font-size: 24px; }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: left;
+      margin-top: 8px;
+    }
+    kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 4px;
+      background: #fff;
+      font-size: 11px;
+      font-family: inherit;
+    }
+
+    footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 520px;
+      text-align: center;
+    }
+
+    /* End-of-round summary */
+    .summary { text-align: center; padding: 8px 0 4px; }
+    .summary .badge {
+      display: inline-block;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .summary .score {
+      font-size: 56px;
+      font-weight: 600;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      margin: 0 0 4px;
+    }
+    .summary .score-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin: 0 0 24px;
+    }
+    .summary .breakdown {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+    .summary .breakdown .good { color: var(--good); font-weight: 500; }
+    .summary .breakdown .bad  { color: var(--bad);  font-weight: 500; }
+    .summary .missed-list {
+      text-align: left;
+      max-width: 320px;
+      margin: 0 auto 24px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .summary .missed-list h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+      margin: 0 0 4px;
+    }
+    .summary .missed-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 10px;
+      font-style: italic;
+    }
+    .summary .missed-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+    }
+    .summary .missed-list li { color: var(--fg); }
+    .summary button.primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .summary button.primary:hover { filter: brightness(1.05); }
+    .summary button.primary:active { transform: translateY(1px); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Spanish Flashcards · Kitchen</h1>
+    <div class="stats">
+      <span class="progress" id="progress">0 / 0</span>
+      <span><span class="good" id="correctCount">0</span> ✓</span>
+      <span><span class="bad"  id="incorrectCount">0</span> ✗</span>
+      <button type="button" id="resetBtn" title="Reset lifetime totals">reset</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Round play view -->
+    <div id="playView">
+      <div class="image-wrap">
+        <img id="cardImage" alt="" />
+      </div>
+      <form id="answerForm" autocomplete="off">
+        <input type="text" id="answerInput"
+               placeholder="word"
+               autocapitalize="off" autocomplete="off"
+               autocorrect="off" spellcheck="false" />
+        <div class="feedback" id="feedback">&nbsp;</div>
+      </form>
+      <div class="hint">
+        <ul>
+        <li>For nouns, type the article and noun (e.g. <kbd>el niño</kbd>, <kbd>la niña</kbd>).</li>
+        <li>For verbs, type the infinitive (e.g. correr)</li>
+        <li>Accents optional</li> 
+        <li>Press <kbd>Enter</kbd> to submit / advance.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Round-end summary view -->
+    <div class="summary" id="summaryView" hidden>
+      <div class="badge">Round complete</div>
+      <p class="score"><span id="roundScoreNum">0</span> / <span id="roundScoreDen">0</span></p>
+      <p class="score-sub" id="roundScorePct">0%</p>
+      <div class="breakdown">
+        <span><span class="good" id="roundCorrect">0</span> correct</span>
+        <span><span class="bad"  id="roundIncorrect">0</span> missed</span>
+      </div>
+      <div class="missed-list" id="missedList" hidden>
+        <h3>Words to review</h3>
+        <p class="missed-sub">These will come up more often in the next round.</p>
+        <ul id="missedListItems"></ul>
+      </div>
+      <button type="button" class="primary" id="practiceAgainBtn">Practice again</button>
+    </div>
+  </main>
+
+  <footer>
+    Add new words by editing <code>words.js</code> and dropping an image into <code>images/</code>.
+  </footer>
+
+  <script src="words.js"></script>
+  <script>
+    'use strict';
+
+    // Round length. Tweak this single constant if you want shorter/longer rounds.
+    const ROUND_SIZE = 20;
+
+    // ---------------- Answer matching --------------------------------------
+    // Strip diacritics + lowercase + collapse whitespace + drop common
+    // punctuation so accents and casing don't matter.
+    function normalize(s) {
+      return (s || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "") // strip combining marks
+        .toLowerCase()
+        .replace(/[.,!?¡¿;:"'()]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function isCorrect(card, userInput) {
+      const u = normalize(userInput);
+      if (!u) return false;
+      const candidates = [card.answer, ...(card.alternates || [])].map(normalize);
+      return candidates.includes(u);
+    }
+
+    // ---------------- Persistent stats -------------------------------------
+    const STATS_KEY = "spanish-flashcards-stats-v1";
+    function loadStats() {
+      try {
+        const raw = localStorage.getItem(STATS_KEY);
+        if (!raw) return { correct: 0, incorrect: 0 };
+        const parsed = JSON.parse(raw);
+        return {
+          correct: Number(parsed.correct) || 0,
+          incorrect: Number(parsed.incorrect) || 0,
+        };
+      } catch { return { correct: 0, incorrect: 0 }; }
+    }
+    function saveStats(stats) {
+      try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch {}
+    }
+
+    // ---------------- Per-word history (drives smart sampling) -------------
+    // Keyed by image path (stable identifier — answer text could be edited).
+    // Shape: { [imagePath]: { seen, correct, lastResult } }
+    const WORD_STATS_KEY = "spanish-flashcards-wordstats-v1";
+    function loadWordStats() {
+      try {
+        const raw = localStorage.getItem(WORD_STATS_KEY);
+        return raw ? (JSON.parse(raw) || {}) : {};
+      } catch { return {}; }
+    }
+    function saveWordStats(s) {
+      try { localStorage.setItem(WORD_STATS_KEY, JSON.stringify(s)); } catch {}
+    }
+    function recordResult(card, wasCorrect) {
+      const s = wordStats[card.image] || { seen: 0, correct: 0, lastResult: null };
+      s.seen++;
+      if (wasCorrect) s.correct++;
+      s.lastResult = wasCorrect ? "correct" : "incorrect";
+      wordStats[card.image] = s;
+      saveWordStats(wordStats);
+    }
+
+    // Weight a card based on its history. Higher = more likely to be sampled.
+    //   base 1
+    //   +2.5 if last result was wrong (drill recently-missed words)
+    //   +1.5 if never seen (gentle bias toward coverage)
+    //   + (miss-rate * 2) for historically-tough words
+    function weightFor(card) {
+      const s = wordStats[card.image];
+      if (!s || s.seen === 0) return 2.5;
+      let w = 1;
+      if (s.lastResult === "incorrect") w += 2.5;
+      const missRate = (s.seen - s.correct) / s.seen;
+      w += missRate * 2;
+      return w;
+    }
+
+    // Weighted sample without replacement (Efraimidis-Spirakis algorithm).
+    // For each item, key = log(u) / weight where u ~ uniform(0,1). Highest keys win.
+    function sampleWeighted(words, n) {
+      if (n >= words.length) {
+        // Just shuffle and return everything
+        const a = words.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+      const ranked = words.map(card => {
+        const u = Math.max(Math.random(), 1e-9); // avoid log(0)
+        const key = Math.log(u) / weightFor(card);
+        return { card, key };
+      });
+      ranked.sort((a, b) => b.key - a.key);
+      return ranked.slice(0, n).map(x => x.card);
+    }
+
+    // ---------------- App state --------------------------------------------
+    const stats = loadStats();         // lifetime totals (persisted)
+    const wordStats = loadWordStats(); // per-word history (persisted)
+    let deck = [];                     // current round's sampled deck
+    let cursor = 0;                    // index of next card to draw
+    let awaitingAdvance = false;       // true after a wrong answer is shown
+    let currentCard = null;
+    let roundCorrect = 0;              // round-only counters
+    let roundIncorrect = 0;
+    let roundMissed = [];              // cards the user got wrong this round
+    let roundEnded = false;            // gate to ignore late inputs
+
+    // ---------------- DOM refs ---------------------------------------------
+    const $img        = document.getElementById("cardImage");
+    const $input      = document.getElementById("answerInput");
+    const $feedback   = document.getElementById("feedback");
+    const $form       = document.getElementById("answerForm");
+    const $correct    = document.getElementById("correctCount");
+    const $incorrect  = document.getElementById("incorrectCount");
+    const $reset      = document.getElementById("resetBtn");
+    const $progress   = document.getElementById("progress");
+    const $playView   = document.getElementById("playView");
+    const $summary    = document.getElementById("summaryView");
+    const $roundScoreNum   = document.getElementById("roundScoreNum");
+    const $roundScoreDen   = document.getElementById("roundScoreDen");
+    const $roundScorePct   = document.getElementById("roundScorePct");
+    const $roundCorrect    = document.getElementById("roundCorrect");
+    const $roundIncorrect  = document.getElementById("roundIncorrect");
+    const $missedList      = document.getElementById("missedList");
+    const $missedListItems = document.getElementById("missedListItems");
+    const $practiceAgain   = document.getElementById("practiceAgainBtn");
+
+    function renderStats() {
+      $correct.textContent = stats.correct;
+      $incorrect.textContent = stats.incorrect;
+    }
+
+    function renderProgress() {
+      // "3 / 25" — counts cards seen so far this round
+      $progress.textContent = `${cursor} / ${deck.length}`;
+    }
+
+    function startRound() {
+      deck = sampleWeighted(WORDS, ROUND_SIZE);
+      cursor = 0;
+      roundCorrect = 0;
+      roundIncorrect = 0;
+      roundMissed = [];
+      roundEnded = false;
+      $summary.hidden = true;
+      $playView.hidden = false;
+      drawNextCard();
+    }
+
+    function showSummary() {
+      roundEnded = true;
+      const total = deck.length;
+      const pct = total > 0 ? Math.round((roundCorrect / total) * 100) : 0;
+      $roundScoreNum.textContent = roundCorrect;
+      $roundScoreDen.textContent = total;
+      $roundScorePct.textContent = `${pct}%`;
+      $roundCorrect.textContent = roundCorrect;
+      $roundIncorrect.textContent = roundIncorrect;
+
+      $missedListItems.innerHTML = "";
+      if (roundMissed.length > 0) {
+        for (const card of roundMissed) {
+          const li = document.createElement("li");
+          li.textContent = card.answer;
+          $missedListItems.appendChild(li);
+        }
+        $missedList.hidden = false;
+      } else {
+        $missedList.hidden = true;
+      }
+
+      $playView.hidden = true;
+      $summary.hidden = false;
+      $practiceAgain.focus();
+    }
+
+    function advanceOrFinish() {
+      if (cursor >= deck.length) {
+        showSummary();
+      } else {
+        drawNextCard();
+      }
+    }
+
+    function drawNextCard() {
+      currentCard = deck[cursor++];
+      $img.src = currentCard.image;
+      $img.alt = "";  // intentionally blank so screen readers don't reveal answer
+      $input.value = "";
+      $input.disabled = false;
+      $feedback.textContent = " ";
+      $feedback.className = "feedback";
+      awaitingAdvance = false;
+      renderProgress();
+      $input.focus();
+    }
+
+    function submitAnswer() {
+      const guess = $input.value;
+      if (!guess.trim()) return;
+      if (isCorrect(currentCard, guess)) {
+        stats.correct++;
+        roundCorrect++;
+        saveStats(stats);
+        recordResult(currentCard, true);
+        renderStats();
+        $feedback.textContent = "✓ ¡Correcto!";
+        $feedback.className = "feedback good";
+        $input.disabled = true;
+        // brief pause so the user sees confirmation, then advance
+        awaitingAdvance = true;
+        setTimeout(() => { if (awaitingAdvance && !roundEnded) advanceOrFinish(); }, 500);
+      } else {
+        stats.incorrect++;
+        roundIncorrect++;
+        roundMissed.push(currentCard);
+        saveStats(stats);
+        recordResult(currentCard, false);
+        renderStats();
+        $feedback.innerHTML =
+          '✗ <span class="answer"></span>';
+        $feedback.querySelector(".answer").textContent = currentCard.answer;
+        $feedback.className = "feedback bad";
+        $input.disabled = true;
+        awaitingAdvance = true;
+      }
+    }
+
+    $form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (roundEnded) return;
+      if (awaitingAdvance) {
+        advanceOrFinish();
+      } else {
+        submitAnswer();
+      }
+    });
+
+    // Enter advances even when the input is disabled (focus moves to body),
+    // and starts a fresh round from the summary screen.
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      if (roundEnded) {
+        // Let the focused button handle Enter natively
+        if (document.activeElement === $practiceAgain) return;
+        e.preventDefault();
+        startRound();
+        return;
+      }
+      if (awaitingAdvance && document.activeElement !== $input) {
+        e.preventDefault();
+        advanceOrFinish();
+      }
+    });
+
+    $reset.addEventListener("click", () => {
+      if (!confirm("Reset your lifetime totals AND clear per-word learning history?")) return;
+      stats.correct = 0;
+      stats.incorrect = 0;
+      saveStats(stats);
+      for (const k of Object.keys(wordStats)) delete wordStats[k];
+      saveWordStats(wordStats);
+      renderStats();
+    });
+
+    $practiceAgain.addEventListener("click", () => { startRound(); });
+
+    // ---------------- Boot --------------------------------------------------
+    if (!Array.isArray(WORDS) || WORDS.length === 0) {
+      $feedback.textContent = "No words loaded — check words.js";
+      $feedback.className = "feedback bad";
+    } else {
+      renderStats();
+      startRound();
+    }
+
+    // Expose internals for tests / console poking
+    window.__flashcards = {
+      normalize, isCorrect, sampleWeighted, weightFor,
+      WORDS, ROUND_SIZE,
+      get deck() { return deck; },
+      get wordStats() { return wordStats; },
+      get cursor() { return cursor; },
+      get roundEnded() { return roundEnded; },
+      startRound,
+    };
+  </script>
+</body>
+</html>
