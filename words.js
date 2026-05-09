@@ -53,7 +53,16 @@ const WORDS = [
   { image: "images/manzana.jpg",   answer: "la manzana" },
   { image: "images/huevo.jpg",     answer: "el huevo" },
   { image: "images/ajo.jpg",       answer: "el ajo" },
+  { image: "images/yema.jpg",       answer: "el yema" },  
+  { image: "images/harina.jpg",    answer: "la harina" },
   { image: "images/mantequilla.jpg", answer: "la mantequilla"},
+  { image: "images/tarta.jpg",    answer: "la tarta",
+    alternates: ["el pastel"] },
+  { image: "images/champiñon.jpg",    answer: "el champiñon",
+    alternates: ["el hongo"] },
+  { image: "images/batidora.jpg",    answer: "la batidora",
+    alternates: ["la licuadora"] },   
+  
 
   // --- Drink & pantry ---
   { image: "images/leche.jpg",     answer: "la leche" },
@@ -63,7 +72,10 @@ const WORDS = [
   { image: "images/aceite.jpg",    answer: "el aceite" },
   { image: "images/botella.jpg",   answer: "la botella" },
 
-  // --- Drink & pantry ---
+  // --- Actions ---
   { image: "images/batir.gif",     answer: "batir" },
+  { image: "images/mezclar.gif",   answer: "mezclar" },
+  { image: "images/hervir.gif",   answer: "hervir" },
+  { image: "images/cortar.gif",   answer: "cortar" },
 
 ];

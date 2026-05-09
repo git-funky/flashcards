@@ -96,8 +96,13 @@
     }
 
     form { display: flex; flex-direction: column; gap: 12px; }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
     input[type="text"] {
-      width: 100%;
+      flex: 1;
       font-size: 20px;
       padding: 14px 16px;
       border: 2px solid var(--border);
@@ -109,6 +114,25 @@
     }
     input[type="text"]:focus { border-color: var(--accent); }
     input[type="text"]:disabled { background: #f8fafc; }
+    #nextBtn {
+      flex-shrink: 0;
+      width: 54px;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 22px;
+      cursor: pointer;
+      transition: background 150ms ease, filter 120ms ease, transform 80ms ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--border);
+    }
+    #nextBtn[data-mode="check"]:not(:disabled) { background: var(--good); }
+    #nextBtn[data-mode="advance"]              { background: var(--accent); }
+    #nextBtn:not(:disabled):hover  { filter: brightness(1.1); }
+    #nextBtn:not(:disabled):active { transform: scale(0.95); }
+    #nextBtn:disabled { color: var(--muted); cursor: default; }
 
     .feedback {
       min-height: 28px;
@@ -238,10 +262,13 @@
         <img id="cardImage" alt="" />
       </div>
       <form id="answerForm" autocomplete="off">
-        <input type="text" id="answerInput"
-               placeholder="word"
-               autocapitalize="off" autocomplete="off"
-               autocorrect="off" spellcheck="false" />
+        <div class="input-row">
+          <input type="text" id="answerInput"
+                 placeholder="word"
+                 autocapitalize="off" autocomplete="off"
+                 autocorrect="off" spellcheck="false" />
+          <button type="button" id="nextBtn" data-mode="check" disabled aria-label="Submit">✓</button>
+        </div>
         <div class="feedback" id="feedback">&nbsp;</div>
       </form>
       <div class="hint">
@@ -396,6 +423,7 @@
     const $input      = document.getElementById("answerInput");
     const $feedback   = document.getElementById("feedback");
     const $form       = document.getElementById("answerForm");
+    const $nextBtn    = document.getElementById("nextBtn");
     const $correct    = document.getElementById("correctCount");
     const $incorrect  = document.getElementById("incorrectCount");
     const $reset      = document.getElementById("resetBtn");
@@ -468,6 +496,20 @@
       }
     }
 
+    function setButtonCheck() {
+      $nextBtn.textContent = "✓";
+      $nextBtn.dataset.mode = "check";
+      $nextBtn.disabled = true;
+      $nextBtn.setAttribute("aria-label", "Submit");
+    }
+
+    function setButtonAdvance() {
+      $nextBtn.textContent = "→";
+      $nextBtn.dataset.mode = "advance";
+      $nextBtn.disabled = false;
+      $nextBtn.setAttribute("aria-label", "Next");
+    }
+
     function drawNextCard() {
       currentCard = deck[cursor++];
       $img.src = currentCard.image;
@@ -477,6 +519,7 @@
       $feedback.textContent = " ";
       $feedback.className = "feedback";
       awaitingAdvance = false;
+      setButtonCheck();
       renderProgress();
       $input.focus();
     }
@@ -495,6 +538,7 @@
         $input.disabled = true;
         // brief pause so the user sees confirmation, then advance
         awaitingAdvance = true;
+        setButtonAdvance();
         setTimeout(() => { if (awaitingAdvance && !roundEnded) advanceOrFinish(); }, 500);
       } else {
         stats.incorrect++;
@@ -509,16 +553,29 @@
         $feedback.className = "feedback bad";
         $input.disabled = true;
         awaitingAdvance = true;
+        setButtonAdvance();
       }
     }
 
-    $form.addEventListener("submit", (e) => {
-      e.preventDefault();
+    function handleAdvance() {
       if (roundEnded) return;
       if (awaitingAdvance) {
         advanceOrFinish();
       } else {
         submitAnswer();
+      }
+    }
+
+    $form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      handleAdvance();
+    });
+
+    $nextBtn.addEventListener("click", () => { handleAdvance(); });
+
+    $input.addEventListener("input", () => {
+      if (!awaitingAdvance) {
+        $nextBtn.disabled = $input.value.trim().length === 0;
       }
     });
 
