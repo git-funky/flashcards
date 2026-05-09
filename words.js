@@ -53,7 +53,7 @@ const WORDS = [
   { image: "images/manzana.jpg",   answer: "la manzana" },
   { image: "images/huevo.jpg",     answer: "el huevo" },
   { image: "images/ajo.jpg",       answer: "el ajo" },
-  { image: "images/yema.jpg",       answer: "el yema" },  
+  { image: "images/yema.jpg",       answer: "la yema" },  
   { image: "images/harina.jpg",    answer: "la harina" },
   { image: "images/mantequilla.jpg", answer: "la mantequilla"},
   { image: "images/tarta.jpg",    answer: "la tarta",
