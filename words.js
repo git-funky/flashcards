@@ -69,7 +69,7 @@ const WORDS = [
   { image: "images/oliva.jpg",       answer: "la oliva",
     alternates: ["la aceituna"] },
   { image: "images/patata.jpg",      answer: "la patata",
-    alternates: ["la papa"] },
+    alternates: ["la papa", "las papas", "las patatas"] },
   
 
   // --- Drink & pantry ---
