@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Spanish Flashcards — Kitchen</title>
+  <title>Spanish Flashcards</title>
   <style>
     :root {
       --bg: #fafaf9;
@@ -28,13 +28,16 @@
       align-items: center;
       padding: 24px 16px 48px;
     }
+
+    /* ── Header ──────────────────────────────────────────────── */
     header {
       width: 100%;
       max-width: 520px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
+      gap: 8px;
     }
     h1 {
       font-size: 18px;
@@ -42,33 +45,245 @@
       margin: 0;
       color: var(--muted);
       letter-spacing: 0.02em;
+      flex-shrink: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .stats {
+
+    /* ── Mode nav tabs ───────────────────────────────────────── */
+    .mode-nav {
+      display: flex;
+      gap: 2px;
+      background: var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      flex-shrink: 0;
+    }
+    .mode-btn {
+      background: none;
+      border: none;
       font-size: 14px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background 120ms ease, color 120ms ease;
+    }
+    .mode-btn:hover { color: var(--fg); }
+    .mode-btn.active {
+      background: var(--card);
+      color: var(--fg);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+
+    /* ── Stats ───────────────────────────────────────────────── */
+    .stats {
+      font-size: 15px;
       color: var(--muted);
       display: flex;
       gap: 12px;
       align-items: center;
+      flex-shrink: 0;
     }
     .stats .good { color: var(--good); font-variant-numeric: tabular-nums; }
     .stats .bad  { color: var(--bad);  font-variant-numeric: tabular-nums; }
-    .stats button {
+    /* ── Reset button (in menu) ──────────────────────────────── */
+    .reset-btn {
       background: none;
       border: 1px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
       color: var(--muted);
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 999px;
       cursor: pointer;
+      padding: 6px 12px;
+      margin-top: 10px;
+      display: inline-block;
+      transition: color 120ms ease, border-color 120ms ease;
     }
-    .stats button:hover { color: var(--fg); border-color: var(--muted); }
+    .reset-btn:hover {
+      color: var(--bad);
+      border-color: #fca5a5;
+    }
     .progress {
       font-size: 13px;
       color: var(--muted);
       font-variant-numeric: tabular-nums;
-      margin-right: 4px;
     }
 
+    /* ── Hamburger (mobile only) ─────────────────────────────── */
+    .hamburger {
+      display: none;
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      color: var(--fg);
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1;
+      transition: background 120ms ease;
+      padding: 0;
+    }
+    .hamburger:hover { background: var(--border); }
+    .hamburger.open  { background: var(--border); }
+
+    /* ── Mobile dropdown menu ────────────────────────────────── */
+    .mobile-menu {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    }
+    .mobile-menu .mode-nav { width: 100%; }
+    .mobile-menu .mode-btn { flex: 1; text-align: center; }
+    .menu-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    /* ── Desktop quiz settings bar ───────────────────────────── */
+    .quiz-settings-bar {
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 12px;
+      padding: 0 2px;
+    }
+
+    /* ── Option row + toggle ─────────────────────────────────── */
+    .option-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+    .option-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--fg);
+    }
+    .toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+    }
+    .toggle-wrap input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-track {
+      position: relative;
+      width: 40px;
+      height: 22px;
+      background: var(--border);
+      border-radius: 999px;
+      transition: background 150ms ease;
+      flex-shrink: 0;
+    }
+    .toggle-wrap input:checked + .toggle-track { background: var(--accent); }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 150ms ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle-wrap input:checked + .toggle-track .toggle-thumb {
+      transform: translateX(18px);
+    }
+
+    /* ── Study view ──────────────────────────────────────────── */
+    .study-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .filter-pill {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      color: var(--muted);
+      transition: border-color 120ms ease, color 120ms ease,
+                  background 120ms ease;
+    }
+    .filter-pill:hover { border-color: var(--muted); color: var(--fg); }
+    .filter-pill.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .study-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+    }
+    .study-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .study-card img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .card-es {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--fg);
+      line-height: 1.3;
+    }
+    .card-en {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.3;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 599px) {
+      .hamburger         { display: flex; }
+      #desktopModeNav    { display: none; }
+      .quiz-settings-bar { display: none; }
+      .progress          { display: none; }
+      .stats             { gap: 10px; }
+      main               { padding: 20px 16px; }
+    }
+    @media (min-width: 600px) {
+      .mobile-menu { display: none !important; }
+    }
+
+    /* ── Main card ───────────────────────────────────────────── */
     main {
       width: 100%;
       max-width: 520px;
@@ -114,6 +329,7 @@
     }
     input[type="text"]:focus { border-color: var(--accent); }
     input[type="text"]:disabled { background: #f8fafc; }
+    input[type="text"]::placeholder { color: #cbd5e1; }
     #nextBtn {
       flex-shrink: 0;
       width: 54px;
@@ -135,8 +351,8 @@
     #nextBtn:disabled { color: var(--muted); cursor: default; }
 
     .feedback {
-      min-height: 28px;
-      font-size: 15px;
+      min-height: 36px;
+      font-size: 18px;
       text-align: center;
       color: var(--muted);
     }
@@ -145,10 +361,15 @@
     .feedback .answer { color: var(--bad); font-weight: 600; font-size: 24px; }
 
     .hint {
-      font-size: 12px;
+      font-size: 14px;
       color: var(--muted);
       text-align: left;
-      margin-top: 8px;
+      margin-top: 10px;
+    }
+    .hint ul {
+      margin: 4px 0 0;
+      padding-left: 20px;
+      line-height: 1.7;
     }
     kbd {
       display: inline-block;
@@ -169,7 +390,7 @@
       text-align: center;
     }
 
-    /* End-of-round summary */
+    /* ── Round-end summary ───────────────────────────────────── */
     .summary { text-align: center; padding: 8px 0 4px; }
     .summary .badge {
       display: inline-block;
@@ -245,18 +466,63 @@
   </style>
 </head>
 <body>
+
   <header>
-    <h1>Spanish Flashcards · Kitchen</h1>
+    <h1>Spanish Flashcards</h1>
+
+    <!-- Mode tabs — desktop only (hidden on mobile via CSS) -->
+    <nav class="mode-nav" id="desktopModeNav" aria-label="App mode">
+      <button class="mode-btn active" data-mode="quiz">Quiz</button>
+      <button class="mode-btn"        data-mode="study">Study</button>
+    </nav>
+
     <div class="stats">
       <span class="progress" id="progress">0 / 0</span>
       <span><span class="good" id="correctCount">0</span> ✓</span>
       <span><span class="bad"  id="incorrectCount">0</span> ✗</span>
-      <button type="button" id="resetBtn" title="Reset lifetime totals">reset</button>
     </div>
+
+    <!-- Hamburger — mobile only (hidden on desktop via CSS) -->
+    <button type="button" class="hamburger" id="hamburgerBtn"
+            aria-label="Open menu" aria-expanded="false">☰</button>
   </header>
 
+  <!-- Mobile dropdown menu ----------------------------------------- -->
+  <div class="mobile-menu" id="mobileMenu" hidden>
+    <nav class="mode-nav" id="mobileModeNav" aria-label="App mode">
+      <button class="mode-btn active" data-mode="quiz">Quiz</button>
+      <button class="mode-btn"        data-mode="study">Study</button>
+    </nav>
+    <!-- Quiz-specific options (hidden when Study mode is active) -->
+    <div id="mobileQuizOptions">
+      <div class="menu-divider"></div>
+      <div class="option-row">
+        <span class="option-label">Enforce Accents</span>
+        <label class="toggle-wrap" title="Require correct accent marks">
+          <input type="checkbox" id="accentToggleMobile">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="menu-divider"></div>
+      <button type="button" class="reset-btn">Reset progress</button>
+    </div>
+  </div>
+
+  <!-- Desktop quiz settings bar (hidden on mobile via CSS) ----------- -->
+  <div class="quiz-settings-bar" id="quizSettingsBar">
+    <div class="option-row">
+      <span class="option-label">Enforce Accents</span>
+      <label class="toggle-wrap" title="Require correct accent marks">
+        <input type="checkbox" id="accentToggleDesktop">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      </label>
+    </div>
+    <button type="button" class="reset-btn">Reset progress</button>
+  </div>
+
   <main>
-    <!-- Round play view -->
+
+    <!-- Quiz: play view -------------------------------------------- -->
     <div id="playView">
       <div class="image-wrap">
         <img id="cardImage" alt="" />
@@ -273,15 +539,15 @@
       </form>
       <div class="hint">
         <ul>
-        <li>For nouns, type the article and noun (e.g. <kbd>el niño</kbd>, <kbd>la niña</kbd>).</li>
-        <li>For verbs, type the infinitive (e.g. correr)</li>
-        <li>Accents optional</li> 
-        <li>Press <kbd>Enter</kbd> to submit / advance.</li>
+          <li>For nouns, type the article and noun (e.g. <kbd>el niño</kbd>, <kbd>la niña</kbd>).</li>
+          <li>For verbs, type the infinitive (e.g. correr)</li>
+          <li id="accentHint">Accents optional</li>
+          <li>Press <kbd>Enter</kbd> to submit / advance.</li>
         </ul>
       </div>
     </div>
 
-    <!-- Round-end summary view -->
+    <!-- Quiz: round-end summary ------------------------------------ -->
     <div class="summary" id="summaryView" hidden>
       <div class="badge">Round complete</div>
       <p class="score"><span id="roundScoreNum">0</span> / <span id="roundScoreDen">0</span></p>
@@ -297,6 +563,13 @@
       </div>
       <button type="button" class="primary" id="practiceAgainBtn">Practice again</button>
     </div>
+
+    <!-- Study view ----------------------------------------------------- -->
+    <div id="studyView" hidden>
+      <div class="study-filters" id="studyFilters"></div>
+      <div class="study-grid"   id="studyGrid"></div>
+    </div>
+
   </main>
 
   <footer>
@@ -307,17 +580,37 @@
   <script>
     'use strict';
 
-    // Round length. Tweak this single constant if you want shorter/longer rounds.
+    // Round length — tweak this single constant for shorter/longer rounds.
     const ROUND_SIZE = 20;
 
-    // ---------------- Answer matching --------------------------------------
-    // Strip diacritics + lowercase + collapse whitespace + drop common
-    // punctuation so accents and casing don't matter.
+    // ── Accent preference ─────────────────────────────────────────
+    const ACCENT_KEY = "spanish-flashcards-accents-v1";
+    let accentEnabled = false;
+
+    function loadAccentPref() {
+      try { return localStorage.getItem(ACCENT_KEY) === "1"; } catch { return false; }
+    }
+    function saveAccentPref(val) {
+      try { localStorage.setItem(ACCENT_KEY, val ? "1" : "0"); } catch {}
+    }
+
+    // ── Answer matching ───────────────────────────────────────────
+    // Accent-insensitive: strips diacritics, lowercases, collapses whitespace.
     function normalize(s) {
       return (s || "")
         .toString()
         .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "") // strip combining marks
+        .replace(/[̀-ͯ]/g, "")   // strip combining marks
+        .toLowerCase()
+        .replace(/[.,!?¡¿;:"'()]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    // Accent-sensitive: same as above but keeps diacritics.
+    function normalizeStrict(s) {
+      return (s || "")
+        .toString()
         .toLowerCase()
         .replace(/[.,!?¡¿;:"'()]/g, " ")
         .replace(/\s+/g, " ")
@@ -325,13 +618,14 @@
     }
 
     function isCorrect(card, userInput) {
-      const u = normalize(userInput);
+      const norm = accentEnabled ? normalizeStrict : normalize;
+      const u = norm(userInput);
       if (!u) return false;
-      const candidates = [card.answer, ...(card.alternates || [])].map(normalize);
+      const candidates = [card.answer, ...(card.alternates || [])].map(norm);
       return candidates.includes(u);
     }
 
-    // ---------------- Persistent stats -------------------------------------
+    // ── Persistent stats ──────────────────────────────────────────
     const STATS_KEY = "spanish-flashcards-stats-v1";
     function loadStats() {
       try {
@@ -339,7 +633,7 @@
         if (!raw) return { correct: 0, incorrect: 0 };
         const parsed = JSON.parse(raw);
         return {
-          correct: Number(parsed.correct) || 0,
+          correct:   Number(parsed.correct)   || 0,
           incorrect: Number(parsed.incorrect) || 0,
         };
       } catch { return { correct: 0, incorrect: 0 }; }
@@ -348,9 +642,7 @@
       try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch {}
     }
 
-    // ---------------- Per-word history (drives smart sampling) -------------
-    // Keyed by image path (stable identifier — answer text could be edited).
-    // Shape: { [imagePath]: { seen, correct, lastResult } }
+    // ── Per-word history (drives smart sampling) ──────────────────
     const WORD_STATS_KEY = "spanish-flashcards-wordstats-v1";
     function loadWordStats() {
       try {
@@ -370,11 +662,6 @@
       saveWordStats(wordStats);
     }
 
-    // Weight a card based on its history. Higher = more likely to be sampled.
-    //   base 1
-    //   +2.5 if last result was wrong (drill recently-missed words)
-    //   +1.5 if never seen (gentle bias toward coverage)
-    //   + (miss-rate * 2) for historically-tough words
     function weightFor(card) {
       const s = wordStats[card.image];
       if (!s || s.seen === 0) return 2.5;
@@ -385,11 +672,9 @@
       return w;
     }
 
-    // Weighted sample without replacement (Efraimidis-Spirakis algorithm).
-    // For each item, key = log(u) / weight where u ~ uniform(0,1). Highest keys win.
+    // Weighted sample without replacement (Efraimidis-Spirakis).
     function sampleWeighted(words, n) {
       if (n >= words.length) {
-        // Just shuffle and return everything
         const a = words.slice();
         for (let i = a.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -398,7 +683,7 @@
         return a;
       }
       const ranked = words.map(card => {
-        const u = Math.max(Math.random(), 1e-9); // avoid log(0)
+        const u = Math.max(Math.random(), 1e-9);
         const key = Math.log(u) / weightFor(card);
         return { card, key };
       });
@@ -406,19 +691,21 @@
       return ranked.slice(0, n).map(x => x.card);
     }
 
-    // ---------------- App state --------------------------------------------
-    const stats = loadStats();         // lifetime totals (persisted)
-    const wordStats = loadWordStats(); // per-word history (persisted)
-    let deck = [];                     // current round's sampled deck
-    let cursor = 0;                    // index of next card to draw
-    let awaitingAdvance = false;       // true after a wrong answer is shown
-    let currentCard = null;
-    let roundCorrect = 0;              // round-only counters
+    // ── App state ─────────────────────────────────────────────────
+    const stats    = loadStats();
+    const wordStats = loadWordStats();
+    let deck           = [];
+    let cursor         = 0;
+    let awaitingAdvance = false;
+    let currentCard    = null;
+    let roundCorrect   = 0;
     let roundIncorrect = 0;
-    let roundMissed = [];              // cards the user got wrong this round
-    let roundEnded = false;            // gate to ignore late inputs
+    let roundMissed    = [];
+    let roundEnded     = false;
+    let currentMode      = 'quiz';
+    let activeCategory   = null;   // null = All
 
-    // ---------------- DOM refs ---------------------------------------------
+    // ── DOM refs ──────────────────────────────────────────────────
     const $img        = document.getElementById("cardImage");
     const $input      = document.getElementById("answerInput");
     const $feedback   = document.getElementById("feedback");
@@ -426,10 +713,10 @@
     const $nextBtn    = document.getElementById("nextBtn");
     const $correct    = document.getElementById("correctCount");
     const $incorrect  = document.getElementById("incorrectCount");
-    const $reset      = document.getElementById("resetBtn");
     const $progress   = document.getElementById("progress");
     const $playView   = document.getElementById("playView");
     const $summary    = document.getElementById("summaryView");
+    const $studyView  = document.getElementById("studyView");
     const $roundScoreNum   = document.getElementById("roundScoreNum");
     const $roundScoreDen   = document.getElementById("roundScoreDen");
     const $roundScorePct   = document.getElementById("roundScorePct");
@@ -438,37 +725,175 @@
     const $missedList      = document.getElementById("missedList");
     const $missedListItems = document.getElementById("missedListItems");
     const $practiceAgain   = document.getElementById("practiceAgainBtn");
+    const $accentHint      = document.getElementById("accentHint");
+    const $accentDesktop   = document.getElementById("accentToggleDesktop");
+    const $accentMobile    = document.getElementById("accentToggleMobile");
+    const $hamburger       = document.getElementById("hamburgerBtn");
+    const $mobileMenu      = document.getElementById("mobileMenu");
+    const $quizSettingsBar = document.getElementById("quizSettingsBar");
+    const $mobileQuizOpts  = document.getElementById("mobileQuizOptions");
 
+    // ── Accent toggle ─────────────────────────────────────────────
+    function setAccentMode(enabled) {
+      accentEnabled = enabled;
+      saveAccentPref(enabled);
+      $accentDesktop.checked = enabled;
+      $accentMobile.checked  = enabled;
+      $accentHint.textContent = enabled ? "Accents required" : "Accents optional";
+    }
+
+    $accentDesktop.addEventListener("change", () => setAccentMode($accentDesktop.checked));
+    $accentMobile.addEventListener("change",  () => setAccentMode($accentMobile.checked));
+
+    // ── Hamburger / mobile menu ───────────────────────────────────
+    $hamburger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const opening = $mobileMenu.hidden;
+      $mobileMenu.hidden = !opening;
+      $hamburger.classList.toggle("open", opening);
+      $hamburger.setAttribute("aria-expanded", String(opening));
+    });
+
+    // Close menu on outside click
+    document.addEventListener("click", (e) => {
+      if (!$mobileMenu.hidden && !$mobileMenu.contains(e.target)) {
+        $mobileMenu.hidden = true;
+        $hamburger.classList.remove("open");
+        $hamburger.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    // ── Study view ───────────────────────────────────────────────
+    function renderStudyView() {
+      // Unique categories in order of first appearance
+      const categories = [];
+      const seen = new Set();
+      for (const w of WORDS) {
+        if (w.category && !seen.has(w.category)) {
+          categories.push(w.category);
+          seen.add(w.category);
+        }
+      }
+
+      // Filter pills
+      const $filters = document.getElementById("studyFilters");
+      $filters.innerHTML = "";
+
+      const makePill = (label, cat) => {
+        const btn = document.createElement("button");
+        btn.className = "filter-pill" + (activeCategory === cat ? " active" : "");
+        btn.textContent = label;
+        btn.addEventListener("click", () => {
+          activeCategory = (activeCategory === cat) ? null : cat;
+          renderStudyView();
+        });
+        $filters.appendChild(btn);
+      };
+
+      makePill("All", null);
+      categories.forEach(cat => makePill(cat, cat));
+
+      // Word grid
+      const $grid = document.getElementById("studyGrid");
+      $grid.innerHTML = "";
+
+      const filtered = activeCategory
+        ? WORDS.filter(w => w.category === activeCategory)
+        : WORDS;
+
+      for (const word of filtered) {
+        const card = document.createElement("div");
+        card.className = "study-card";
+
+        const img = document.createElement("img");
+        img.src = word.image;
+        img.alt = word.english || word.answer;
+        img.loading = "lazy";
+
+        const es = document.createElement("div");
+        es.className = "card-es";
+        es.textContent = word.answer;
+
+        const en = document.createElement("div");
+        en.className = "card-en";
+        en.textContent = word.english || "";
+
+        card.append(img, es, en);
+        $grid.appendChild(card);
+      }
+    }
+
+    // ── Mode switching ────────────────────────────────────────────
+    function setMode(mode) {
+      if (mode === currentMode) {
+        // Just close mobile menu
+        $mobileMenu.hidden = true;
+        $hamburger.classList.remove("open");
+        $hamburger.setAttribute("aria-expanded", "false");
+        return;
+      }
+      currentMode = mode;
+      const isQuiz = mode === "quiz";
+
+      // Sync all mode buttons (desktop + mobile nav)
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+      });
+
+      if (isQuiz) {
+        $studyView.hidden       = true;
+        $quizSettingsBar.hidden = false;
+        $mobileQuizOpts.hidden  = false;
+        startRound();
+      } else {
+        $playView.hidden        = true;
+        $summary.hidden         = true;
+        $studyView.hidden       = false;
+        $quizSettingsBar.hidden = true;
+        $mobileQuizOpts.hidden  = true;
+        renderStudyView();
+      }
+
+      // Close mobile menu
+      $mobileMenu.hidden = true;
+      $hamburger.classList.remove("open");
+      $hamburger.setAttribute("aria-expanded", "false");
+    }
+
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      btn.addEventListener("click", () => setMode(btn.dataset.mode));
+    });
+
+    // ── Quiz helpers ──────────────────────────────────────────────
     function renderStats() {
-      $correct.textContent = stats.correct;
+      $correct.textContent   = stats.correct;
       $incorrect.textContent = stats.incorrect;
     }
 
     function renderProgress() {
-      // "3 / 25" — counts cards seen so far this round
       $progress.textContent = `${cursor} / ${deck.length}`;
     }
 
     function startRound() {
-      deck = sampleWeighted(WORDS, ROUND_SIZE);
-      cursor = 0;
-      roundCorrect = 0;
+      deck           = sampleWeighted(WORDS, ROUND_SIZE);
+      cursor         = 0;
+      roundCorrect   = 0;
       roundIncorrect = 0;
-      roundMissed = [];
-      roundEnded = false;
-      $summary.hidden = true;
-      $playView.hidden = false;
+      roundMissed    = [];
+      roundEnded     = false;
+      $summary.hidden   = true;
+      $playView.hidden  = false;
       drawNextCard();
     }
 
     function showSummary() {
       roundEnded = true;
       const total = deck.length;
-      const pct = total > 0 ? Math.round((roundCorrect / total) * 100) : 0;
-      $roundScoreNum.textContent = roundCorrect;
-      $roundScoreDen.textContent = total;
-      $roundScorePct.textContent = `${pct}%`;
-      $roundCorrect.textContent = roundCorrect;
+      const pct   = total > 0 ? Math.round((roundCorrect / total) * 100) : 0;
+      $roundScoreNum.textContent  = roundCorrect;
+      $roundScoreDen.textContent  = total;
+      $roundScorePct.textContent  = `${pct}%`;
+      $roundCorrect.textContent   = roundCorrect;
       $roundIncorrect.textContent = roundIncorrect;
 
       $missedListItems.innerHTML = "";
@@ -484,16 +909,13 @@
       }
 
       $playView.hidden = true;
-      $summary.hidden = false;
+      $summary.hidden  = false;
       $practiceAgain.focus();
     }
 
     function advanceOrFinish() {
-      if (cursor >= deck.length) {
-        showSummary();
-      } else {
-        drawNextCard();
-      }
+      if (cursor >= deck.length) showSummary();
+      else drawNextCard();
     }
 
     function setButtonCheck() {
@@ -513,10 +935,10 @@
     function drawNextCard() {
       currentCard = deck[cursor++];
       $img.src = currentCard.image;
-      $img.alt = "";  // intentionally blank so screen readers don't reveal answer
+      $img.alt = "";
       $input.value = "";
       $input.disabled = false;
-      $feedback.textContent = " ";
+      $feedback.textContent = " ";
       $feedback.className = "feedback";
       awaitingAdvance = false;
       setButtonCheck();
@@ -536,7 +958,6 @@
         $feedback.textContent = "✓ ¡Correcto!";
         $feedback.className = "feedback good";
         $input.disabled = true;
-        // brief pause so the user sees confirmation, then advance
         awaitingAdvance = true;
         setButtonAdvance();
         setTimeout(() => { if (awaitingAdvance && !roundEnded) advanceOrFinish(); }, 500);
@@ -547,8 +968,7 @@
         saveStats(stats);
         recordResult(currentCard, false);
         renderStats();
-        $feedback.innerHTML =
-          '✗ <span class="answer"></span>';
+        $feedback.innerHTML = '✗ <span class="answer"></span>';
         $feedback.querySelector(".answer").textContent = currentCard.answer;
         $feedback.className = "feedback bad";
         $input.disabled = true;
@@ -559,18 +979,11 @@
 
     function handleAdvance() {
       if (roundEnded) return;
-      if (awaitingAdvance) {
-        advanceOrFinish();
-      } else {
-        submitAnswer();
-      }
+      if (awaitingAdvance) advanceOrFinish();
+      else submitAnswer();
     }
 
-    $form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      handleAdvance();
-    });
-
+    $form.addEventListener("submit", (e) => { e.preventDefault(); handleAdvance(); });
     $nextBtn.addEventListener("click", () => { handleAdvance(); });
 
     $input.addEventListener("input", () => {
@@ -579,12 +992,9 @@
       }
     });
 
-    // Enter advances even when the input is disabled (focus moves to body),
-    // and starts a fresh round from the summary screen.
     document.addEventListener("keydown", (e) => {
       if (e.key !== "Enter") return;
       if (roundEnded) {
-        // Let the focused button handle Enter natively
         if (document.activeElement === $practiceAgain) return;
         e.preventDefault();
         startRound();
@@ -596,36 +1006,45 @@
       }
     });
 
-    $reset.addEventListener("click", () => {
-      if (!confirm("Reset your lifetime totals AND clear per-word learning history?")) return;
-      stats.correct = 0;
-      stats.incorrect = 0;
-      saveStats(stats);
-      for (const k of Object.keys(wordStats)) delete wordStats[k];
-      saveWordStats(wordStats);
-      renderStats();
+    document.querySelectorAll(".reset-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (!confirm("Reset your lifetime totals AND clear per-word learning history?")) return;
+        stats.correct   = 0;
+        stats.incorrect = 0;
+        saveStats(stats);
+        for (const k of Object.keys(wordStats)) delete wordStats[k];
+        saveWordStats(wordStats);
+        renderStats();
+        // Close mobile menu if open
+        $mobileMenu.hidden = true;
+        $hamburger.classList.remove("open");
+        $hamburger.setAttribute("aria-expanded", "false");
+      });
     });
 
     $practiceAgain.addEventListener("click", () => { startRound(); });
 
-    // ---------------- Boot --------------------------------------------------
+    // ── Boot ──────────────────────────────────────────────────────
+    setAccentMode(loadAccentPref());   // restore saved accent preference
+
     if (!Array.isArray(WORDS) || WORDS.length === 0) {
       $feedback.textContent = "No words loaded — check words.js";
-      $feedback.className = "feedback bad";
+      $feedback.className   = "feedback bad";
     } else {
       renderStats();
       startRound();
     }
 
-    // Expose internals for tests / console poking
+    // Expose internals for tests / console
     window.__flashcards = {
-      normalize, isCorrect, sampleWeighted, weightFor,
+      normalize, normalizeStrict, isCorrect, sampleWeighted, weightFor,
       WORDS, ROUND_SIZE,
-      get deck() { return deck; },
-      get wordStats() { return wordStats; },
-      get cursor() { return cursor; },
-      get roundEnded() { return roundEnded; },
-      startRound,
+      get deck()         { return deck; },
+      get wordStats()    { return wordStats; },
+      get cursor()       { return cursor; },
+      get roundEnded()   { return roundEnded; },
+      get accentEnabled(){ return accentEnabled; },
+      startRound, setMode, setAccentMode,
     };
   </script>
 </body>

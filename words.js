@@ -3,12 +3,14 @@
  * ----------------------------------------------------------------------------
  * Each entry:
  *   image      — path to the image (relative to index.html)
- *   answer     — canonical answer including the article ("el" / "la")
- *   alternates — optional array of additional accepted answers (also with
- *                article). Useful for regional variants (e.g. "el refrigerador"
- *                vs "la nevera"). Accents are NOT required here — the matcher
- *                strips them before comparing — but keep the canonical answer
- *                spelled correctly because that's what's shown when wrong.
+ *   answer     — canonical Spanish answer including the article ("el" / "la")
+ *   english    — English translation including "the" (nouns) or "to" (verbs)
+ *   category   — used for filtering in Study mode
+ *   alternates — optional array of additional accepted Spanish answers.
+ *                Useful for regional variants (e.g. "el refrigerador" vs
+ *                "la nevera"). Accents are NOT required — the matcher strips
+ *                them before comparing — but keep the canonical answer spelled
+ *                correctly because that's what's shown when wrong.
  *
  * ADDING A NEW WORD
  *   1. Drop a square image (SVG, PNG, or JPG) into images/
@@ -22,74 +24,74 @@
  * ========================================================================== */
 
 const WORDS = [
+
   // --- Cutlery, dishes & cleaning ---
-  { image: "images/trastes.jpg",    answer: "los trastes" },
-  { image: "images/bandeja.jpg",    answer: "la bandeja" },
-  { image: "images/jabon.jpg",      answer: "el jabón" },
-  { image: "images/cuchillo.jpg",  answer: "el cuchillo" },
-  { image: "images/tenedor.jpg",   answer: "el tenedor" },
-  { image: "images/cuchara.jpg",   answer: "la cuchara" },
-  { image: "images/plato.jpg",     answer: "el plato" },
-  { image: "images/vaso.jpg",      answer: "el vaso" },
-  { image: "images/taza.jpg",      answer: "la taza" },
+  { image: "images/trastes.jpg",    answer: "los trastes",    english: "the dishes",     category: "Cutlery & Dishes" },
+  { image: "images/bandeja.jpg",    answer: "la bandeja",     english: "the tray",       category: "Cutlery & Dishes" },
+  { image: "images/jabon.jpg",      answer: "el jabón",       english: "the soap",       category: "Cutlery & Dishes" },
+  { image: "images/cuchillo.jpg",   answer: "el cuchillo",    english: "the knife",      category: "Cutlery & Dishes" },
+  { image: "images/tenedor.jpg",    answer: "el tenedor",     english: "the fork",       category: "Cutlery & Dishes" },
+  { image: "images/cuchara.jpg",    answer: "la cuchara",     english: "the spoon",      category: "Cutlery & Dishes" },
+  { image: "images/plato.jpg",      answer: "el plato",       english: "the plate",      category: "Cutlery & Dishes" },
+  { image: "images/vaso.jpg",       answer: "el vaso",        english: "the glass",      category: "Cutlery & Dishes" },
+  { image: "images/taza.jpg",       answer: "la taza",        english: "the cup",        category: "Cutlery & Dishes" },
 
   // --- Cookware ---
-  { image: "images/sarten.jpg",    answer: "la sartén" },
-  { image: "images/olla.jpg",      answer: "la olla" },
+  { image: "images/sarten.jpg",     answer: "la sartén",      english: "the frying pan", category: "Cookware" },
+  { image: "images/olla.jpg",       answer: "la olla",        english: "the pot",        category: "Cookware" },
 
   // --- Appliances ---
-  { image: "images/horno.jpg",     answer: "el horno" },
-  { image: "images/nevera.jpg",    answer: "la nevera",
+  { image: "images/horno.jpg",      answer: "el horno",       english: "the oven",       category: "Appliances" },
+  { image: "images/nevera.jpg",     answer: "la nevera",      english: "the fridge",     category: "Appliances",
     alternates: ["el refrigerador", "el frigorífico"] },
-  { image: "images/microondas.jpg",answer: "el microondas" },
-  { image: "images/estufa.jpg",    answer: "la estufa",
+  { image: "images/microondas.jpg", answer: "el microondas",  english: "the microwave",  category: "Appliances" },
+  { image: "images/estufa.jpg",     answer: "la estufa",      english: "the stove",      category: "Appliances",
     alternates: ["la cocina"] },
-  { image: "images/fregadero.jpg", answer: "el fregadero" },
+  { image: "images/fregadero.jpg",  answer: "el fregadero",   english: "the sink",       category: "Appliances" },
+  { image: "images/batidora.jpg",   answer: "la batidora",    english: "the blender",    category: "Appliances",
+    alternates: ["la licuadora"] },
 
   // --- Furniture ---
-  { image: "images/mesa.jpg",      answer: "la mesa" },
-  { image: "images/silla.jpg",     answer: "la silla" },
+  { image: "images/mesa.jpg",       answer: "la mesa",        english: "the table",      category: "Furniture" },
+  { image: "images/silla.jpg",      answer: "la silla",       english: "the chair",      category: "Furniture" },
 
   // --- Food ---
-  { image: "images/pan.jpg",       answer: "el pan" },
-  { image: "images/queso.jpg",     answer: "el queso" },
-  { image: "images/manzana.jpg",   answer: "la manzana" },
-  { image: "images/huevo.jpg",     answer: "el huevo" },
-  { image: "images/ajo.jpg",       answer: "el ajo" },
-  { image: "images/almendra.jpg",  answer: "la almendra" },
-  { image: "images/yema.jpg",       answer: "la yema" },
-  { image: "images/cascara-de-huevo.jpg", answer: "la cáscara de huevo" },  
-  { image: "images/harina.jpg",    answer: "la harina" },
-  { image: "images/mantequilla.jpg", answer: "la mantequilla"},
-  { image: "images/tarta.jpg",    answer: "la tarta",
+  { image: "images/pan.jpg",        answer: "el pan",         english: "the bread",      category: "Food" },
+  { image: "images/queso.jpg",      answer: "el queso",       english: "the cheese",     category: "Food" },
+  { image: "images/manzana.jpg",    answer: "la manzana",     english: "the apple",      category: "Food" },
+  { image: "images/huevo.jpg",      answer: "el huevo",       english: "the egg",        category: "Food" },
+  { image: "images/ajo.jpg",        answer: "el ajo",         english: "the garlic",     category: "Food" },
+  { image: "images/almendra.jpg",   answer: "la almendra",    english: "the almond",     category: "Food" },
+  { image: "images/yema.jpg",       answer: "la yema",        english: "the yolk",       category: "Food" },
+  { image: "images/cascara-de-huevo.jpg", answer: "la cáscara de huevo", english: "the eggshell", category: "Food" },
+  { image: "images/harina.jpg",     answer: "la harina",      english: "the flour",      category: "Food" },
+  { image: "images/mantequilla.jpg",answer: "la mantequilla", english: "the butter",     category: "Food" },
+  { image: "images/tarta.jpg",      answer: "la tarta",       english: "the cake",       category: "Food",
     alternates: ["el pastel"] },
-  { image: "images/champiñon.jpg",    answer: "el champiñón",
+  { image: "images/champiñon.jpg",  answer: "el champiñón",   english: "the mushroom",   category: "Food",
     alternates: ["el hongo"] },
-  { image: "images/batidora.jpg",    answer: "la batidora",
-    alternates: ["la licuadora"] },
-  { image: "images/cebolla.jpg",     answer: "la cebolla" },
-  { image: "images/chorizo.jpg",     answer: "el chorizo" },
-  { image: "images/jamon.jpg",       answer: "el jamón" },
-  { image: "images/oliva.jpg",       answer: "la oliva",
+  { image: "images/cebolla.jpg",    answer: "la cebolla",     english: "the onion",      category: "Food" },
+  { image: "images/chorizo.jpg",    answer: "el chorizo",     english: "the chorizo",    category: "Food" },
+  { image: "images/jamon.jpg",      answer: "el jamón",       english: "the ham",        category: "Food" },
+  { image: "images/oliva.jpg",      answer: "la oliva",       english: "the olive",      category: "Food",
     alternates: ["la aceituna"] },
-  { image: "images/patata.jpg",      answer: "la patata",
+  { image: "images/patata.jpg",     answer: "la patata",      english: "the potato",     category: "Food",
     alternates: ["la papa", "las papas", "las patatas"] },
-  
 
-  // --- Drink & pantry ---
-  { image: "images/leche.jpg",     answer: "la leche" },
-  { image: "images/sal.jpg",       answer: "la sal" },
-  { image: "images/azucar.jpg",    answer: "el azúcar" },
-  { image: "images/cafe.jpg",      answer: "el café" },
-  { image: "images/aceite.jpg",    answer: "el aceite" },
-  { image: "images/aceite-de-oliva.jpg", answer: "el aceite de oliva" },
-  { image: "images/vinagre.jpg",   answer: "el vinagre" },
-  { image: "images/botella.jpg",   answer: "la botella" },
+  // --- Pantry & drink ---
+  { image: "images/leche.jpg",      answer: "la leche",       english: "the milk",       category: "Pantry" },
+  { image: "images/sal.jpg",        answer: "la sal",         english: "the salt",       category: "Pantry" },
+  { image: "images/azucar.jpg",     answer: "el azúcar",      english: "the sugar",      category: "Pantry" },
+  { image: "images/cafe.jpg",       answer: "el café",        english: "the coffee",     category: "Pantry" },
+  { image: "images/aceite.jpg",     answer: "el aceite",      english: "the oil",        category: "Pantry" },
+  { image: "images/aceite-de-oliva.jpg", answer: "el aceite de oliva", english: "the olive oil", category: "Pantry" },
+  { image: "images/vinagre.jpg",    answer: "el vinagre",     english: "the vinegar",    category: "Pantry" },
+  { image: "images/botella.jpg",    answer: "la botella",     english: "the bottle",     category: "Pantry" },
 
   // --- Actions ---
-  { image: "images/batir.gif",     answer: "batir" },
-  { image: "images/mezclar.gif",   answer: "mezclar" },
-  { image: "images/hervir.gif",   answer: "hervir" },
-  { image: "images/cortar.gif",   answer: "cortar" },
+  { image: "images/batir.gif",      answer: "batir",          english: "to beat",        category: "Actions" },
+  { image: "images/mezclar.gif",    answer: "mezclar",        english: "to mix",         category: "Actions" },
+  { image: "images/hervir.gif",     answer: "hervir",         english: "to boil",        category: "Actions" },
+  { image: "images/cortar.gif",     answer: "cortar",         english: "to cut",         category: "Actions" },
 
 ];
