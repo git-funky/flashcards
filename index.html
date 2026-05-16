@@ -242,6 +242,7 @@
       gap: 12px;
     }
     .study-card {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -281,63 +282,37 @@
     }
     .study-card:active { transform: scale(0.97); }
 
-    /* ── Image modal ─────────────────────────────────────────── */
-    .img-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 24px;
-      backdrop-filter: blur(2px);
-    }
-    .img-modal-backdrop[hidden] { display: none; }
-    .img-modal {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 24px;
-      max-width: min(480px, 90vw);
+    /* ── Flip card (Study / hide-Spanish mode) ───────────────── */
+    .card-inner {
+      position: relative;
       width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      transform-style: preserve-3d;
+      transition: transform 0.4s ease;
+    }
+    .study-card.flipped .card-inner {
+      transform: perspective(600px) rotateY(180deg);
+    }
+    .card-face {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .card-front {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      position: relative;
-    }
-    .img-modal img {
+      gap: 8px;
       width: 100%;
-      max-height: 60vh;
-      object-fit: contain;
-      border-radius: 10px;
     }
-    .img-modal-name {
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--fg);
-      text-align: center;
-    }
-    .img-modal-close {
+    .card-back {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      background: var(--border);
-      border: none;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      font-size: 16px;
-      cursor: pointer;
+      inset: 0;
+      transform: rotateY(180deg);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--muted);
-      line-height: 1;
-      transition: background 120ms ease;
+      font-weight: 600;
+      color: var(--fg);
     }
-    .img-modal-close:hover { background: #d1d5db; }
 
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 599px) {
@@ -575,6 +550,17 @@
       <div class="menu-divider"></div>
       <button type="button" class="reset-btn">Reset progress</button>
     </div>
+    <!-- Study-specific options (hidden when Quiz mode is active) -->
+    <div id="mobileStudyOptions" hidden>
+      <div class="menu-divider"></div>
+      <div class="option-row">
+        <span class="option-label">Hide Spanish</span>
+        <label class="toggle-wrap" title="Hide the Spanish word; click a card to reveal it">
+          <input type="checkbox" id="hideEsToggleMobile">
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+    </div>
   </div>
 
   <!-- Desktop quiz settings bar (hidden on mobile via CSS) ----------- -->
@@ -587,6 +573,17 @@
       </label>
     </div>
     <button type="button" class="reset-btn">Reset progress</button>
+  </div>
+
+  <!-- Desktop study settings bar (hidden on mobile via CSS) ---------- -->
+  <div class="quiz-settings-bar" id="studySettingsBar" hidden>
+    <div class="option-row">
+      <span class="option-label">Hide Spanish</span>
+      <label class="toggle-wrap" title="Hide the Spanish word; click a card to reveal it">
+        <input type="checkbox" id="hideEsToggleDesktop">
+        <span class="toggle-track"><span class="toggle-thumb"></span></span>
+      </label>
+    </div>
   </div>
 
   <main>
@@ -645,15 +642,6 @@
     Add new words by editing <code>words.js</code> and dropping an image into <code>images/</code>.
   </footer>
 
-  <!-- Image zoom modal (Study mode) --------------------------------- -->
-  <div class="img-modal-backdrop" id="imgModal" hidden aria-modal="true" role="dialog">
-    <div class="img-modal" id="imgModalBox">
-      <button class="img-modal-close" id="imgModalClose" aria-label="Close">✕</button>
-      <img id="imgModalImg" src="" alt="" />
-      <div class="img-modal-name" id="imgModalName"></div>
-    </div>
-  </div>
-
   <script src="words.js"></script>
   <script>
     'use strict';
@@ -670,6 +658,17 @@
     }
     function saveAccentPref(val) {
       try { localStorage.setItem(ACCENT_KEY, val ? "1" : "0"); } catch {}
+    }
+
+    // ── Hide-Spanish preference ───────────────────────────────────
+    const HIDE_ES_KEY = "spanish-flashcards-hide-es-v1";
+    let hideSpanish = false;
+
+    function loadHideEsPref() {
+      try { return localStorage.getItem(HIDE_ES_KEY) === "1"; } catch { return false; }
+    }
+    function saveHideEsPref(val) {
+      try { localStorage.setItem(HIDE_ES_KEY, val ? "1" : "0"); } catch {}
     }
 
     // ── Answer matching ───────────────────────────────────────────
@@ -806,10 +805,14 @@
     const $accentHint      = document.getElementById("accentHint");
     const $accentDesktop   = document.getElementById("accentToggleDesktop");
     const $accentMobile    = document.getElementById("accentToggleMobile");
-    const $hamburger       = document.getElementById("hamburgerBtn");
-    const $mobileMenu      = document.getElementById("mobileMenu");
-    const $quizSettingsBar = document.getElementById("quizSettingsBar");
-    const $mobileQuizOpts  = document.getElementById("mobileQuizOptions");
+    const $hamburger        = document.getElementById("hamburgerBtn");
+    const $mobileMenu       = document.getElementById("mobileMenu");
+    const $quizSettingsBar  = document.getElementById("quizSettingsBar");
+    const $mobileQuizOpts   = document.getElementById("mobileQuizOptions");
+    const $studySettingsBar = document.getElementById("studySettingsBar");
+    const $mobileStudyOpts  = document.getElementById("mobileStudyOptions");
+    const $hideEsDesktop    = document.getElementById("hideEsToggleDesktop");
+    const $hideEsMobile     = document.getElementById("hideEsToggleMobile");
 
     // ── Accent toggle ─────────────────────────────────────────────
     function setAccentMode(enabled) {
@@ -822,6 +825,18 @@
 
     $accentDesktop.addEventListener("change", () => setAccentMode($accentDesktop.checked));
     $accentMobile.addEventListener("change",  () => setAccentMode($accentMobile.checked));
+
+    // ── Hide-Spanish toggle ───────────────────────────────────────
+    function setHideSpanish(enabled) {
+      hideSpanish = enabled;
+      saveHideEsPref(enabled);
+      $hideEsDesktop.checked = enabled;
+      $hideEsMobile.checked  = enabled;
+      if (currentMode === "study") renderStudyView();
+    }
+
+    $hideEsDesktop.addEventListener("change", () => setHideSpanish($hideEsDesktop.checked));
+    $hideEsMobile.addEventListener("change",  () => setHideSpanish($hideEsMobile.checked));
 
     // ── Hamburger / mobile menu ───────────────────────────────────
     $hamburger.addEventListener("click", (e) => {
@@ -896,43 +911,29 @@
         en.className = "card-en";
         en.textContent = word.english || "";
 
-        card.append(img, es, en);
-        card.addEventListener("click", () => openImgModal(word));
+        if (hideSpanish) {
+          // Front face: image + English. Back face: Spanish only.
+          const inner = document.createElement("div");
+          inner.className = "card-inner";
+
+          const front = document.createElement("div");
+          front.className = "card-face card-front";
+          front.append(img, en);
+
+          const back = document.createElement("div");
+          back.className = "card-face card-back";
+          back.append(es);
+
+          inner.append(front, back);
+          card.append(inner);
+
+          card.addEventListener("click", () => card.classList.toggle("flipped"));
+        } else {
+          card.append(img, es, en);
+        }
         $grid.appendChild(card);
       }
     }
-
-    // ── Image modal (Study mode) ──────────────────────────────────
-    const $imgModal      = document.getElementById("imgModal");
-    const $imgModalImg   = document.getElementById("imgModalImg");
-    const $imgModalName  = document.getElementById("imgModalName");
-    const $imgModalClose = document.getElementById("imgModalClose");
-    const $imgModalBox   = document.getElementById("imgModalBox");
-
-    function openImgModal(word) {
-      $imgModalImg.src  = word.image;
-      $imgModalImg.alt  = word.english || word.answer;
-      $imgModalName.textContent = word.english || word.answer;
-      $imgModal.hidden = false;
-      $imgModalClose.focus();
-    }
-
-    function closeImgModal() {
-      $imgModal.hidden = true;
-      $imgModalImg.src = "";
-    }
-
-    $imgModalClose.addEventListener("click", closeImgModal);
-
-    // Click backdrop (outside the modal box) to close
-    $imgModal.addEventListener("click", (e) => {
-      if (!$imgModalBox.contains(e.target)) closeImgModal();
-    });
-
-    // Escape key to close
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !$imgModal.hidden) closeImgModal();
-    });
 
     // ── Mode switching ────────────────────────────────────────────
     function setMode(mode) {
@@ -952,16 +953,20 @@
       });
 
       if (isQuiz) {
-        $studyView.hidden       = true;
-        $quizSettingsBar.hidden = false;
-        $mobileQuizOpts.hidden  = false;
+        $studyView.hidden        = true;
+        $quizSettingsBar.hidden  = false;
+        $mobileQuizOpts.hidden   = false;
+        $studySettingsBar.hidden = true;
+        $mobileStudyOpts.hidden  = true;
         startRound();
       } else {
-        $playView.hidden        = true;
-        $summary.hidden         = true;
-        $studyView.hidden       = false;
-        $quizSettingsBar.hidden = true;
-        $mobileQuizOpts.hidden  = true;
+        $playView.hidden         = true;
+        $summary.hidden          = true;
+        $studyView.hidden        = false;
+        $quizSettingsBar.hidden  = true;
+        $mobileQuizOpts.hidden   = true;
+        $studySettingsBar.hidden = false;
+        $mobileStudyOpts.hidden  = false;
         renderStudyView();
       }
 
@@ -1136,7 +1141,8 @@
     $practiceAgain.addEventListener("click", () => { startRound(); });
 
     // ── Boot ──────────────────────────────────────────────────────
-    setAccentMode(loadAccentPref());   // restore saved accent preference
+    setAccentMode(loadAccentPref());     // restore saved accent preference
+    setHideSpanish(loadHideEsPref());   // restore saved hide-Spanish preference
 
     if (!Array.isArray(WORDS) || WORDS.length === 0) {
       $feedback.textContent = "No words loaded — check words.js";
@@ -1150,12 +1156,13 @@
     window.__flashcards = {
       normalize, normalizeStrict, isCorrect, sampleWeighted, weightFor,
       WORDS, ROUND_SIZE,
-      get deck()         { return deck; },
-      get wordStats()    { return wordStats; },
-      get cursor()       { return cursor; },
-      get roundEnded()   { return roundEnded; },
-      get accentEnabled(){ return accentEnabled; },
-      startRound, setMode, setAccentMode,
+      get deck()          { return deck; },
+      get wordStats()     { return wordStats; },
+      get cursor()        { return cursor; },
+      get roundEnded()    { return roundEnded; },
+      get accentEnabled() { return accentEnabled; },
+      get hideSpanish()   { return hideSpanish; },
+      startRound, setMode, setAccentMode, setHideSpanish,
     };
   </script>
 </body>
