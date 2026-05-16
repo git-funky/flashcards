@@ -270,6 +270,75 @@
       line-height: 1.3;
     }
 
+    /* ── Study card clickable ────────────────────────────────── */
+    .study-card {
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    .study-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+    }
+    .study-card:active { transform: scale(0.97); }
+
+    /* ── Image modal ─────────────────────────────────────────── */
+    .img-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+      backdrop-filter: blur(2px);
+    }
+    .img-modal-backdrop[hidden] { display: none; }
+    .img-modal {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      max-width: min(480px, 90vw);
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      position: relative;
+    }
+    .img-modal img {
+      width: 100%;
+      max-height: 60vh;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .img-modal-name {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--fg);
+      text-align: center;
+    }
+    .img-modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--border);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      line-height: 1;
+      transition: background 120ms ease;
+    }
+    .img-modal-close:hover { background: #d1d5db; }
+
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 599px) {
       .hamburger         { display: flex; }
@@ -576,6 +645,15 @@
     Add new words by editing <code>words.js</code> and dropping an image into <code>images/</code>.
   </footer>
 
+  <!-- Image zoom modal (Study mode) --------------------------------- -->
+  <div class="img-modal-backdrop" id="imgModal" hidden aria-modal="true" role="dialog">
+    <div class="img-modal" id="imgModalBox">
+      <button class="img-modal-close" id="imgModalClose" aria-label="Close">✕</button>
+      <img id="imgModalImg" src="" alt="" />
+      <div class="img-modal-name" id="imgModalName"></div>
+    </div>
+  </div>
+
   <script src="words.js"></script>
   <script>
     'use strict';
@@ -819,9 +897,42 @@
         en.textContent = word.english || "";
 
         card.append(img, es, en);
+        card.addEventListener("click", () => openImgModal(word));
         $grid.appendChild(card);
       }
     }
+
+    // ── Image modal (Study mode) ──────────────────────────────────
+    const $imgModal      = document.getElementById("imgModal");
+    const $imgModalImg   = document.getElementById("imgModalImg");
+    const $imgModalName  = document.getElementById("imgModalName");
+    const $imgModalClose = document.getElementById("imgModalClose");
+    const $imgModalBox   = document.getElementById("imgModalBox");
+
+    function openImgModal(word) {
+      $imgModalImg.src  = word.image;
+      $imgModalImg.alt  = word.english || word.answer;
+      $imgModalName.textContent = word.english || word.answer;
+      $imgModal.hidden = false;
+      $imgModalClose.focus();
+    }
+
+    function closeImgModal() {
+      $imgModal.hidden = true;
+      $imgModalImg.src = "";
+    }
+
+    $imgModalClose.addEventListener("click", closeImgModal);
+
+    // Click backdrop (outside the modal box) to close
+    $imgModal.addEventListener("click", (e) => {
+      if (!$imgModalBox.contains(e.target)) closeImgModal();
+    });
+
+    // Escape key to close
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !$imgModal.hidden) closeImgModal();
+    });
 
     // ── Mode switching ────────────────────────────────────────────
     function setMode(mode) {
