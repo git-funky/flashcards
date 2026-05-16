@@ -114,45 +114,6 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* ── Hamburger (mobile only) ─────────────────────────────── */
-    .hamburger {
-      display: none;
-      flex-shrink: 0;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      width: 36px;
-      height: 36px;
-      cursor: pointer;
-      color: var(--fg);
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      line-height: 1;
-      transition: background 120ms ease;
-      padding: 0;
-    }
-    .hamburger:hover { background: var(--border); }
-    .hamburger.open  { background: var(--border); }
-
-    /* ── Mobile dropdown menu ────────────────────────────────── */
-    .mobile-menu {
-      width: 100%;
-      max-width: 520px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    }
-    .mobile-menu .mode-nav { width: 100%; }
-    .mobile-menu .mode-btn { flex: 1; text-align: center; }
-    .menu-divider {
-      height: 1px;
-      background: var(--border);
-      margin: 10px 0;
-    }
 
     /* ── Desktop quiz settings bar ───────────────────────────── */
     .quiz-settings-bar {
@@ -316,15 +277,9 @@
 
     /* ── Responsive ──────────────────────────────────────────── */
     @media (max-width: 599px) {
-      .hamburger         { display: flex; }
-      #desktopModeNav    { display: none; }
-      .quiz-settings-bar { display: none; }
-      .progress          { display: none; }
-      .stats             { gap: 10px; }
-      main               { padding: 20px 16px; }
-    }
-    @media (min-width: 600px) {
-      .mobile-menu { display: none !important; }
+      .progress { display: none; }
+      .stats    { gap: 10px; }
+      main      { padding: 20px 16px; }
     }
 
     /* ── Main card ───────────────────────────────────────────── */
@@ -514,7 +469,7 @@
   <header>
     <h1>Spanish Flashcards</h1>
 
-    <!-- Mode tabs — desktop only (hidden on mobile via CSS) -->
+    <!-- Mode tabs -->
     <nav class="mode-nav" id="desktopModeNav" aria-label="App mode">
       <button class="mode-btn active" data-mode="quiz">Quiz</button>
       <button class="mode-btn"        data-mode="study">Study</button>
@@ -525,45 +480,9 @@
       <span><span class="good" id="correctCount">0</span> ✓</span>
       <span><span class="bad"  id="incorrectCount">0</span> ✗</span>
     </div>
-
-    <!-- Hamburger — mobile only (hidden on desktop via CSS) -->
-    <button type="button" class="hamburger" id="hamburgerBtn"
-            aria-label="Open menu" aria-expanded="false">☰</button>
   </header>
 
-  <!-- Mobile dropdown menu ----------------------------------------- -->
-  <div class="mobile-menu" id="mobileMenu" hidden>
-    <nav class="mode-nav" id="mobileModeNav" aria-label="App mode">
-      <button class="mode-btn active" data-mode="quiz">Quiz</button>
-      <button class="mode-btn"        data-mode="study">Study</button>
-    </nav>
-    <!-- Quiz-specific options (hidden when Study mode is active) -->
-    <div id="mobileQuizOptions">
-      <div class="menu-divider"></div>
-      <div class="option-row">
-        <span class="option-label">Enforce Accents</span>
-        <label class="toggle-wrap" title="Require correct accent marks">
-          <input type="checkbox" id="accentToggleMobile">
-          <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        </label>
-      </div>
-      <div class="menu-divider"></div>
-      <button type="button" class="reset-btn">Reset progress</button>
-    </div>
-    <!-- Study-specific options (hidden when Quiz mode is active) -->
-    <div id="mobileStudyOptions" hidden>
-      <div class="menu-divider"></div>
-      <div class="option-row">
-        <span class="option-label">Hide Spanish</span>
-        <label class="toggle-wrap" title="Hide the Spanish word; click a card to reveal it">
-          <input type="checkbox" id="hideEsToggleMobile">
-          <span class="toggle-track"><span class="toggle-thumb"></span></span>
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <!-- Desktop quiz settings bar (hidden on mobile via CSS) ----------- -->
+  <!-- Quiz settings bar -------------------------------------------- -->
   <div class="quiz-settings-bar" id="quizSettingsBar">
     <div class="option-row">
       <span class="option-label">Enforce Accents</span>
@@ -575,7 +494,7 @@
     <button type="button" class="reset-btn">Reset progress</button>
   </div>
 
-  <!-- Desktop study settings bar (hidden on mobile via CSS) ---------- -->
+  <!-- Study settings bar ------------------------------------------- -->
   <div class="quiz-settings-bar" id="studySettingsBar" hidden>
     <div class="option-row">
       <span class="option-label">Hide Spanish</span>
@@ -803,58 +722,30 @@
     const $missedListItems = document.getElementById("missedListItems");
     const $practiceAgain   = document.getElementById("practiceAgainBtn");
     const $accentHint      = document.getElementById("accentHint");
-    const $accentDesktop   = document.getElementById("accentToggleDesktop");
-    const $accentMobile    = document.getElementById("accentToggleMobile");
-    const $hamburger        = document.getElementById("hamburgerBtn");
-    const $mobileMenu       = document.getElementById("mobileMenu");
+    const $accentDesktop    = document.getElementById("accentToggleDesktop");
     const $quizSettingsBar  = document.getElementById("quizSettingsBar");
-    const $mobileQuizOpts   = document.getElementById("mobileQuizOptions");
     const $studySettingsBar = document.getElementById("studySettingsBar");
-    const $mobileStudyOpts  = document.getElementById("mobileStudyOptions");
     const $hideEsDesktop    = document.getElementById("hideEsToggleDesktop");
-    const $hideEsMobile     = document.getElementById("hideEsToggleMobile");
 
     // ── Accent toggle ─────────────────────────────────────────────
     function setAccentMode(enabled) {
       accentEnabled = enabled;
       saveAccentPref(enabled);
       $accentDesktop.checked = enabled;
-      $accentMobile.checked  = enabled;
       $accentHint.textContent = enabled ? "Accents required" : "Accents optional";
     }
 
     $accentDesktop.addEventListener("change", () => setAccentMode($accentDesktop.checked));
-    $accentMobile.addEventListener("change",  () => setAccentMode($accentMobile.checked));
 
     // ── Hide-Spanish toggle ───────────────────────────────────────
     function setHideSpanish(enabled) {
       hideSpanish = enabled;
       saveHideEsPref(enabled);
       $hideEsDesktop.checked = enabled;
-      $hideEsMobile.checked  = enabled;
       if (currentMode === "study") renderStudyView();
     }
 
     $hideEsDesktop.addEventListener("change", () => setHideSpanish($hideEsDesktop.checked));
-    $hideEsMobile.addEventListener("change",  () => setHideSpanish($hideEsMobile.checked));
-
-    // ── Hamburger / mobile menu ───────────────────────────────────
-    $hamburger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const opening = $mobileMenu.hidden;
-      $mobileMenu.hidden = !opening;
-      $hamburger.classList.toggle("open", opening);
-      $hamburger.setAttribute("aria-expanded", String(opening));
-    });
-
-    // Close menu on outside click
-    document.addEventListener("click", (e) => {
-      if (!$mobileMenu.hidden && !$mobileMenu.contains(e.target)) {
-        $mobileMenu.hidden = true;
-        $hamburger.classList.remove("open");
-        $hamburger.setAttribute("aria-expanded", "false");
-      }
-    });
 
     // ── Study view ───────────────────────────────────────────────
     function renderStudyView() {
@@ -937,17 +828,10 @@
 
     // ── Mode switching ────────────────────────────────────────────
     function setMode(mode) {
-      if (mode === currentMode) {
-        // Just close mobile menu
-        $mobileMenu.hidden = true;
-        $hamburger.classList.remove("open");
-        $hamburger.setAttribute("aria-expanded", "false");
-        return;
-      }
+      if (mode === currentMode) return;
       currentMode = mode;
       const isQuiz = mode === "quiz";
 
-      // Sync all mode buttons (desktop + mobile nav)
       document.querySelectorAll(".mode-btn").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.mode === mode);
       });
@@ -955,25 +839,16 @@
       if (isQuiz) {
         $studyView.hidden        = true;
         $quizSettingsBar.hidden  = false;
-        $mobileQuizOpts.hidden   = false;
         $studySettingsBar.hidden = true;
-        $mobileStudyOpts.hidden  = true;
         startRound();
       } else {
         $playView.hidden         = true;
         $summary.hidden          = true;
         $studyView.hidden        = false;
         $quizSettingsBar.hidden  = true;
-        $mobileQuizOpts.hidden   = true;
         $studySettingsBar.hidden = false;
-        $mobileStudyOpts.hidden  = false;
         renderStudyView();
       }
-
-      // Close mobile menu
-      $mobileMenu.hidden = true;
-      $hamburger.classList.remove("open");
-      $hamburger.setAttribute("aria-expanded", "false");
     }
 
     document.querySelectorAll(".mode-btn").forEach(btn => {
@@ -1131,10 +1006,6 @@
         for (const k of Object.keys(wordStats)) delete wordStats[k];
         saveWordStats(wordStats);
         renderStats();
-        // Close mobile menu if open
-        $mobileMenu.hidden = true;
-        $hamburger.classList.remove("open");
-        $hamburger.setAttribute("aria-expanded", "false");
       });
     });
 
