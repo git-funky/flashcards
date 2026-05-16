@@ -61,6 +61,13 @@
       padding: 3px;
       flex-shrink: 0;
     }
+    /* Standalone (outside header) */
+    #desktopModeNav {
+      width: 100%;
+      max-width: 520px;
+      margin-bottom: 12px;
+    }
+    #desktopModeNav .mode-btn { flex: 1; text-align: center; }
     .mode-btn {
       background: none;
       border: none;
@@ -469,18 +476,18 @@
   <header>
     <h1>Spanish Flashcards</h1>
 
-    <!-- Mode tabs -->
-    <nav class="mode-nav" id="desktopModeNav" aria-label="App mode">
-      <button class="mode-btn active" data-mode="quiz">Quiz</button>
-      <button class="mode-btn"        data-mode="study">Study</button>
-    </nav>
-
     <div class="stats">
       <span class="progress" id="progress">0 / 0</span>
       <span><span class="good" id="correctCount">0</span> ✓</span>
       <span><span class="bad"  id="incorrectCount">0</span> ✗</span>
     </div>
   </header>
+
+  <!-- Mode tabs -->
+  <nav class="mode-nav" id="desktopModeNav" aria-label="App mode">
+    <button class="mode-btn active" data-mode="quiz">Quiz</button>
+    <button class="mode-btn"        data-mode="study">Study</button>
+  </nav>
 
   <!-- Quiz settings bar -------------------------------------------- -->
   <div class="quiz-settings-bar" id="quizSettingsBar">
