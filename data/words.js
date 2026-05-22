@@ -8,9 +8,10 @@
  *   category   — used for filtering in Study mode
  *   alternates — optional array of additional accepted Spanish answers.
  *                Useful for regional variants (e.g. "el refrigerador" vs
- *                "la nevera"). Accents are NOT required — the matcher strips
- *                them before comparing — but keep the canonical answer spelled
- *                correctly because that's what's shown when wrong.
+ *                "la nevera"). Always spell alternates correctly, with their
+ *                proper accent marks — when "Enforce Accents" is on the matcher
+ *                requires users to type accents correctly for any form that
+ *                carries them.
  *
  * ADDING A NEW WORD
  *   1. Drop a square image (SVG, PNG, or JPG) into images/
@@ -35,6 +36,10 @@ const WORDS = [
   { image: "images/plato.jpg",      answer: "el plato",       english: "the plate",      category: "Cutlery & Dishes" },
   { image: "images/vaso.jpg",       answer: "el vaso",        english: "the glass",      category: "Cutlery & Dishes" },
   { image: "images/taza.jpg",       answer: "la taza",        english: "the cup",        category: "Cutlery & Dishes" },
+
+    // --- Cookware ---
+  { image: "images/tapa.jpg",      answer: "la tapa",       english: "the lid",       category: "Object",
+    alternates: ["la tapadera"] },
 
   // --- Cookware ---
   { image: "images/sarten.jpg",     answer: "la sartén",      english: "the frying pan", category: "Cookware" },

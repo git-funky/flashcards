@@ -565,10 +565,10 @@
   </main>
 
   <footer>
-    Add new words by editing <code>words.js</code> and dropping an image into <code>images/</code>.
+    Add new words by editing <code>data/words.js</code> and dropping an image into <code>images/</code>.
   </footer>
 
-  <script src="words.js"></script>
+  <script src="data/words.js"></script>
   <script>
     'use strict';
 
@@ -621,11 +621,27 @@
     }
 
     function isCorrect(card, userInput) {
-      const norm = accentEnabled ? normalizeStrict : normalize;
-      const u = norm(userInput);
-      if (!u) return false;
-      const candidates = [card.answer, ...(card.alternates || [])].map(norm);
-      return candidates.includes(u);
+      const u_loose = normalize(userInput);
+      if (!u_loose) return false;
+
+      const candidates = [card.answer, ...(card.alternates || [])];
+
+      if (!accentEnabled) {
+        return candidates.map(normalize).includes(u_loose);
+      }
+
+      // Accent-enforced path:
+      // 1. Find candidates that are the same word (accent-insensitive).
+      const wordMatches = candidates.filter(c => normalize(c) === u_loose);
+      if (wordMatches.length === 0) return false;
+
+      // 2. If any of those candidates carry accent marks, the user must
+      //    reproduce them — only compare against those accented forms.
+      //    This prevents a bare alternate (e.g. "el jamon") from letting
+      //    the user bypass enforcement when a proper accented form exists.
+      const accentedMatches = wordMatches.filter(c => normalize(c) !== normalizeStrict(c));
+      const pool = accentedMatches.length > 0 ? accentedMatches : wordMatches;
+      return pool.some(c => normalizeStrict(c) === normalizeStrict(userInput));
     }
 
     // ── Persistent stats ──────────────────────────────────────────
@@ -1023,7 +1039,7 @@
     setHideSpanish(loadHideEsPref());   // restore saved hide-Spanish preference
 
     if (!Array.isArray(WORDS) || WORDS.length === 0) {
-      $feedback.textContent = "No words loaded — check words.js";
+      $feedback.textContent = "No words loaded — check data/words.js";
       $feedback.className   = "feedback bad";
     } else {
       renderStats();
