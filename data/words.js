@@ -79,7 +79,7 @@ const WORDS = [
   { image: "images/chorizo.jpg",    answer: "el chorizo",     english: "the chorizo",    category: "Food" },
   { image: "images/jamon.jpg",      answer: "el jamón",       english: "the ham",        category: "Food" },
   { image: "images/oliva.jpg",      answer: "la oliva",       english: "the olive",      category: "Food",
-    alternates: ["la aceituna"] },
+    alternates: ["la aceituna", "las olivas"] },
   { image: "images/patata.jpg",     answer: "la patata",      english: "the potato",     category: "Food",
     alternates: ["la papa", "las papas", "las patatas"] },
 
