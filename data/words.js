@@ -75,7 +75,7 @@ const WORDS = [
     alternates: ["el pastel"] },
   { image: "images/champiñon.jpg",  answer: "el champiñón",   english: "the mushroom",   category: "Food",
     alternates: ["el hongo"] },
-  { image: "images/cebolla.jpg",    answer: "la cebolla",     english: "the onion",      category: "Food" },
+  { image: "images/cebolla.jpg",    answer: "la cebolla",     english: "the onion",      category: "Food",  alternates: ["las cebollas"] },
   { image: "images/chorizo.jpg",    answer: "el chorizo",     english: "the chorizo",    category: "Food" },
   { image: "images/jamon.jpg",      answer: "el jamón",       english: "the ham",        category: "Food" },
   { image: "images/oliva.jpg",      answer: "la oliva",       english: "the olive",      category: "Food",
